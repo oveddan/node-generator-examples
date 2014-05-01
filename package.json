@@ -1,6 +1,13 @@
 {
   "name": "js-generators",
+  "version": "0.0.1",
   "description": "Javascript Generators described through tests",
+  "author": {
+    "name": "Dan Oved",
+    "email": "stangogh@gmail.com"
+  },
+  "dependencies": {
+  },
   "devDependencies": {
     "chai" : "~1.9.1",
     "mocha": "~1.12.0",
@@ -8,6 +15,13 @@
   },
   "scripts": {
     "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/oveddan/js-generators.git"
+  },
+  "engines": {
+    "node": ">=0.11.12"
   },
   "license": "MIT"
 }

@@ -2,10 +2,9 @@ NODE ?= node
 
 test:
 	@$(NODE) ./node_modules/.bin/mocha \
-		--require chai \
 		--reporter spec \
 		--slow 2s \
-		--harmony-generators \
+		--harmony \
 		--bail
 
 .PHONY: test
