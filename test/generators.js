@@ -49,6 +49,12 @@ describe('function *()', function(){
         });
       });
 
+      describe('when there is a return value', function(){
+        it('should assign the return value to .value', function(){
+          // TODO: write this
+        });
+      });
+
       it('should raise an error when next is called', function(){
         // iterate again past last point of code
         expect(generator.next).to.throw(Error);
@@ -56,57 +62,83 @@ describe('function *()', function(){
     });  
   });
 
-  describe('next() with callback for the yield', function(){
-    describe('when callback does not callback with a value', function(){
-      it('invokes the callback', function(){
-        var calledBack = false;
+  describe('next() when a function is yielded', function(){
+    it('invokes the function', function(){
+      var methodCalled = false;
 
-        var callback = function (){
-          calledBack = true;
-        };
+      var method = function (){
+        methodCalled = true;
+      };
 
-        var generator = (function *(){
-          yield callback();
-        })();
+      var generator = (function *(){
+        yield method();
+      })();
 
-        generator.next();
+      generator.next();
 
-        expect(calledBack).to.be.true;
-      });
+      expect(methodCalled).to.be.true;
     });
-    describe('when callback calls back with a value', function(){
-      it('has a value of the callbacks value', function(){
+    describe('when a function that returns another function is yielded', function(){
+      it('that returned function can be invoked', function(done){
         var callbackWrapper = function (){
           return function(callback) {
             callback(null, 5);
           };
         };
 
-        var result = null;
         var generator = (function *(){
-          result = yield callbackWrapper();
-          return result;
+          yield callbackWrapper();
         })();
 
         var currentIteration = generator.next();
-        
-        expect(result).to.eq(5);
-      })
+
+        currentIteration.value(function(err, result){      
+          expect(result).to.eq(5);
+          done();
+        });
+      });
+      describe('when that returned function is invoked', function(){
+        it('does not continue the execution of the generator', function(){
+          var callbackWrapper = function (){
+            return function() {};
+          };
+
+          var result = null;
+          var generator = (function *(){
+            yield callbackWrapper();
+            result = 5;
+          })();
+
+          var currentIteration = generator.next();
+
+          currentIteration.value();
+
+          expect(result).to.eq(null);
+        });
+      });
+      describe('when next(value) is invoked within the callback', function(){
+        it('it returns the value to the yield statement and continues execution', function(done){
+          var delayedIncrement = function (){
+            return function(toIncrement, callback) {
+              callback(null, toIncrement + 1);
+            };
+          };
+
+          var generator = (function *(){
+            var incremented = yield delayedIncrement();
+
+            return incremented;
+          })();
+
+          var iteration = generator.next();
+
+          iteration.value(3, function(e, result){
+            var finalIteration = generator.next(result);
+            expect(finalIteration.value).to.eq(4);
+            done();
+          });
+        });          
+      });
     });
   });
 });
-
-var callbackWrapper = function (){
-  return function(callback) {
-    callback(null, 5);
-  };
-};
-
-var result = null;
-var generator = (function *(){
-  result = yield callbackWrapper();
-})();
-
-var nextIteration = generator.next();
-
-// nextIteration.value is a function
