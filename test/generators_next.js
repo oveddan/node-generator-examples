@@ -109,9 +109,9 @@ describe('function *()', function(){
             result = 5;
           })();
 
-          var currentIteration = generator.next();
+          var iteration = generator.next();
 
-          currentIteration.value();
+          iteration.value();
 
           expect(result).to.eq(null);
         });
